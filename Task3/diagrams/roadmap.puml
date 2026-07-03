@@ -1,0 +1,39 @@
+@startgantt
+
+Project starts the 2026-01-01
+printscale monthly
+
+[Этап 0: архитектурная фиксация] as [stage0] lasts 60 days
+[Утвердить домены и целевую C4-архитектуру] as [s0_arch] starts at [stage0]'s start and lasts 20 days
+[Определить data products и владельцев] as [s0_data_products] starts at [stage0]'s start and lasts 20 days
+[Зафиксировать запрет medical records в self-service] as [s0_medical_limit] starts at [s0_arch]'s end and lasts 10 days
+[Выбрать API Gateway, Event Bus, Catalog, Lakehouse] as [s0_platform_choice] starts at [s0_data_products]'s end and lasts 20 days
+
+[Этап 1: фундамент data-платформы] as [stage1] starts at [stage0]'s end and lasts 60 days
+[Cloud foundation через Terraform] as [s1_cloud] starts at [stage1]'s start and lasts 25 days
+[Lakehouse + ingestion] as [s1_lakehouse] starts at [stage1]'s start and lasts 40 days
+[Data Catalog + Lineage] as [s1_catalog] starts at [stage1]'s start and lasts 40 days
+[IAM/RBAC/ABAC для данных] as [s1_iam] starts at [stage1]'s start and lasts 35 days
+[Legacy Adapter к SQL Server 2008] as [s1_legacy] starts at [stage1]'s start and lasts 30 days
+
+[Этап 2: MVP self-service портала] as [stage2] starts at [stage1]'s end and lasts 60 days
+[Self-service Data Portal MVP] as [s2_portal] starts at [stage2]'s start and lasts 45 days
+[Semantic Layer / Metrics Store] as [s2_semantic] starts at [stage2]'s start and lasts 40 days
+[Первые curated marts для KPI] as [s2_marts] starts at [stage2]'s start and lasts 45 days
+[Перевод ключевых BI-отчётов] as [s2_bi] starts at [stage2]'s start and lasts 35 days
+
+[Этап 3: независимые домены] as [stage3] starts at [stage2]'s end and lasts 90 days
+[Fintech Domain Services] as [s3_fintech] starts at [stage3]'s start and lasts 60 days
+[AI Domain Services] as [s3_ai] starts at [stage3]'s start and lasts 60 days
+[Clinical Domain и Medical Records Boundary] as [s3_clinical] starts at [stage3]'s start and lasts 70 days
+[Partner Domain + data contracts] as [s3_partner] starts at [stage3]'s start and lasts 60 days
+[Event Bus + API Gateway rollout] as [s3_integration] starts at [stage3]'s start and lasts 70 days
+
+[Этап 4: масштабирование и оптимизация] as [stage4] starts at [stage3]'s end and lasts 90 days
+[Оптимизация Query Engine и marts] as [s4_query] starts at [stage4]'s start and lasts 50 days
+[Миграция критичных отчётов с legacy DWH] as [s4_migration] starts at [stage4]'s start and lasts 70 days
+[Observability и SLO] as [s4_observability] starts at [stage4]'s start and lasts 45 days
+[FinOps и cost control] as [s4_finops] starts at [stage4]'s start and lasts 40 days
+[Расширение data products] as [s4_data_products] starts at [stage4]'s start and lasts 70 days
+
+@endgantt
