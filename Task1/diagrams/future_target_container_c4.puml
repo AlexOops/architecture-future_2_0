@@ -1,0 +1,190 @@
+@startuml
+left to right direction
+
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam linetype polyline
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+skinparam nodesep 75
+skinparam ranksep 95
+skinparam ArrowColor #374151
+skinparam ArrowThickness 1
+
+skinparam rectangle {
+  BackgroundColor #DDF4FF
+  BorderColor #2B7BBB
+  FontColor #1F2937
+}
+
+skinparam database {
+  BackgroundColor #E8F7FF
+  BorderColor #2780E3
+  FontColor #1F2937
+}
+
+skinparam cloud {
+  BackgroundColor #F3F4F6
+  BorderColor #6B7280
+  FontColor #1F2937
+}
+
+skinparam queue {
+  BackgroundColor #FFF2CC
+  BorderColor #D6A100
+  FontColor #1F2937
+}
+
+skinparam note {
+  BackgroundColor #FFF8DC
+  BorderColor #C9A227
+}
+
+actor "Бизнес-пользователь" as businessUser
+actor "Оператор клиники" as operator
+actor "Аналитик домена" as domainAnalyst
+actor "Data Steward" as dataSteward
+actor "ИИ-команда" as aiTeam
+actor "Финтех-команда" as fintechTeam
+
+frame "User Interfaces" as ui {
+  rectangle "Self-service Data Portal\n[Web App]\n\nпоиск данных,\nконструктор отчётов,\nдоступ по ролям" as dataPortal
+  rectangle "BI System\n[Power BI / Cloud BI]\n\nдашборды и отчёты\nповерх semantic layer" as bi
+  rectangle "Operator Portal\n[Web App]\n\nзамена PowerBuilder\nдля новых процессов" as operatorPortal
+}
+
+frame "Access & Governance" as governance {
+  rectangle "IAM / SSO\n\nRBAC/ABAC,\nдоменные роли" as iam
+  rectangle "Data Access Gateway\n\npolicy checks,\nrow/column security,\nmasking" as accessGateway
+  rectangle "Data Catalog\n& Lineage\n\ndata products, owner,\ncontracts, lineage" as catalog
+  rectangle "Data Governance\n\nкачество, SLA,\nправила публикации\nи согласование KPI" as dataGovernance
+}
+
+frame "Domain Layer" as domains {
+  rectangle "Medical Domain Services\n[API / Services]\n\nклиники, пациенты,\nоперационные процессы" as medicalDomain
+  rectangle "Fintech Domain Services\n[Go / Java]\n\nсчета, кредиты,\nфинансовые продукты" as fintechDomain
+  rectangle "AI Domain Services\n[Python]\n\nдиагностика и\nмедицинские AI-сценарии" as aiDomain
+  rectangle "Corporate Domain Services\n\nперсонал, инвентарь,\nфинансовая отчётность" as corporateDomain
+  rectangle "Partner Integration Services\n\nфарма, электроника,\nновые бизнесы" as partnerDomain
+}
+
+frame "Integration Layer" as integration {
+  rectangle "API Gateway\n\nREST/gRPC APIs,\nrate limit, auth" as apiGateway
+  queue "Event Bus\n[Kafka / Cloud PubSub]\n\nдоменные события" as eventBus
+  rectangle "Legacy Adapter\n\nSQL Server 2008,\nApache Camel,\nPowerBuilder bridge" as legacyAdapter
+}
+
+frame "Data Platform" as dataPlatform {
+  rectangle "Ingestion & Transformation\n\nbatch/stream pipelines,\nELT, data contracts" as ingestion
+  database "Lakehouse Storage\n[Object Storage + Tables]\n\nraw / trusted / curated" as lakehouse
+  database "Analytical DWH\n\nагрегаты, витрины,\nисторические данные" as analyticalDwh
+  rectangle "Semantic Layer\n/ Metrics Store\n\nединые KPI,\nбизнес-метрики" as semanticLayer
+  rectangle "Query Engine\n\nмасштабируемые\nзапросы к витринам" as queryEngine
+}
+
+frame "Domain Data Stores" as domainStores {
+  database "Medical Operational DB\n\nоперационные данные\nбез публикации медкарт\nв self-service" as medicalDb
+  database "Fintech DB\n\nсчета, кредиты,\nфинансовая история" as fintechDb
+  database "Corporate DB\n\nперсонал, инвентарь,\nуправленческие данные" as corporateDb
+  database "Partner Data Products\n\nстандартизованные\nнаборы данных" as partnerData
+}
+
+cloud "Legacy DWH\n[SQL Server 2008]\n\nread-only / phased migration" as legacyDwh
+
+businessUser --> dataPortal : собрать отчёт
+businessUser --> bi : смотреть KPI
+operator --> operatorPortal : работа в клинике
+domainAnalyst --> dataPortal : доменная аналитика
+dataSteward --> catalog : владелец данных\nи контрактов
+aiTeam --> aiDomain : развитие AI
+fintechTeam --> fintechDomain : развитие финтеха
+
+dataPortal --> iam
+bi --> iam
+operatorPortal --> iam
+
+dataPortal --> accessGateway
+bi --> accessGateway
+operatorPortal --> apiGateway
+
+accessGateway --> catalog
+accessGateway --> semanticLayer
+accessGateway --> queryEngine
+
+apiGateway --> medicalDomain
+apiGateway --> fintechDomain
+apiGateway --> aiDomain
+apiGateway --> corporateDomain
+apiGateway --> partnerDomain
+
+medicalDomain --> medicalDb
+fintechDomain --> fintechDb
+corporateDomain --> corporateDb
+partnerDomain --> partnerData
+
+medicalDomain --> eventBus
+fintechDomain --> eventBus
+aiDomain --> eventBus
+corporateDomain --> eventBus
+partnerDomain --> eventBus
+
+eventBus --> ingestion
+medicalDb --> ingestion
+fintechDb --> ingestion
+corporateDb --> ingestion
+partnerData --> ingestion
+legacyAdapter --> ingestion
+legacyDwh --> legacyAdapter
+
+ingestion --> lakehouse
+lakehouse --> analyticalDwh
+analyticalDwh --> semanticLayer
+semanticLayer --> queryEngine
+queryEngine --> dataPortal
+queryEngine --> bi
+
+catalog ..> ingestion
+catalog ..> lakehouse
+catalog ..> analyticalDwh
+catalog ..> semanticLayer
+dataGovernance ..> catalog
+dataGovernance ..> semanticLayer
+dataGovernance ..> accessGateway
+
+note bottom of medicalDb
+Медицинские карты, истории болезни
+и результаты исследований не публикуются
+в self-service витрину данных.
+
+В аналитику идут только разрешённые
+операционные и агрегированные данные.
+end note
+
+note bottom of semanticLayer
+Semantic Layer даёт единые KPI.
+
+Отчёты строятся не через тяжёлую
+логику в legacy DWH, а через
+подготовленные витрины и метрики.
+end note
+
+note bottom of integration
+Новые бизнесы подключаются
+через API Gateway, события
+и data contracts.
+
+Это снижает зависимость
+от старой ESB и DWH.
+end note
+
+legend bottom
+|= Бизнес-сценарий |= Как поддерживается |
+| Быстрая отчётность | Lakehouse, Analytical DWH, Semantic Layer, Query Engine |
+| Self-service аналитика | Data Portal, Catalog, Access Gateway |
+| Независимый финтех | Fintech Domain Services + Fintech DB + data products |
+| Независимый AI | AI Domain Services + контролируемый доступ к медицинским данным |
+| Новые бизнесы | Partner Integration, API Gateway, Event Bus, data contracts |
+| Снижение зависимости от DWH | Legacy Adapter + phased migration + вынос логики в домены |
+endlegend
+
+@enduml
