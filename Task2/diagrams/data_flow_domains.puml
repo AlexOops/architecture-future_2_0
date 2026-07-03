@@ -1,0 +1,158 @@
+@startuml
+left to right direction
+
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam linetype polyline
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+skinparam nodesep 75
+skinparam ranksep 95
+skinparam ArrowColor #374151
+skinparam ArrowThickness 1
+
+skinparam rectangle {
+  BackgroundColor #DDF4FF
+  BorderColor #2B7BBB
+  FontColor #1F2937
+}
+
+skinparam database {
+  BackgroundColor #E8F7FF
+  BorderColor #2780E3
+  FontColor #1F2937
+}
+
+skinparam cloud {
+  BackgroundColor #F3F4F6
+  BorderColor #6B7280
+  FontColor #1F2937
+}
+
+skinparam queue {
+  BackgroundColor #FFF2CC
+  BorderColor #D6A100
+  FontColor #1F2937
+}
+
+skinparam note {
+  BackgroundColor #FFF8DC
+  BorderColor #C9A227
+}
+
+actor "Бизнес-пользователь" as businessUser
+actor "Врач / оператор" as clinician
+actor "Финтех-команда" as fintechTeam
+actor "AI-команда" as aiTeam
+actor "Партнёр" as partner
+actor "Data Steward" as steward
+
+frame "Business Domains" as domains {
+  rectangle "Clinical Domain\n\nклиники, пациенты,\nприёмы, лечение" as clinical
+  rectangle "Medical Records Boundary\n\nмедкарты, истории болезни,\nисследования, снимки" as medicalRecords
+  rectangle "Fintech Domain\n\nсчета, кредиты,\nфинансовые продукты" as fintech
+  rectangle "AI Domain\n\nAI-диагностика,\nмодели, inference" as ai
+  rectangle "Partner Domain\n\nфарма, электроника,\nновые бизнесы" as partnerDomain
+  rectangle "Corporate Domain\n\nперсонал, инвентарь,\nкорпоративные финансы" as corporate
+}
+
+frame "Integration & Contracts" as integration {
+  rectangle "API Gateway\n\nAuth, contracts,\nrate limit" as gateway
+  queue "Event Bus\n\nдоменные события" as eventBus
+  rectangle "Data Contracts\n\nschema, owner, SLA,\nallowed fields" as contracts
+  rectangle "Policy Check\n\naccess, masking,\nmedical restrictions" as policy
+}
+
+frame "Data Platform Domain" as platform {
+  rectangle "Ingestion\n\nbatch / stream" as ingestion
+  database "Lakehouse\n\nraw / trusted / curated" as lakehouse
+  database "Curated Data Marts\n\nготовые витрины\nпо доменам" as marts
+  rectangle "Semantic Layer\n/ Metrics Store\n\nединые KPI" as semantic
+  rectangle "Self-service Data Portal\n\nпоиск данных,\nконструктор отчётов" as portal
+  rectangle "BI System" as bi
+  rectangle "Data Catalog\n& Lineage\n\nowner, source,\ncontract, lineage" as catalog
+}
+
+cloud "Legacy DWH\nSQL Server 2008\nread-only migration source" as legacyDwh
+rectangle "Legacy Adapter" as legacyAdapter
+
+clinician --> clinical : операционные\nмедицинские процессы
+clinical --> medicalRecords : запись / чтение\nмедицинских данных
+clinical --> gateway : API команды
+clinical --> eventBus : clinical events
+
+fintechTeam --> fintech : новые\nфинтех-продукты
+fintech --> gateway : fintech APIs
+fintech --> eventBus : fintech events
+
+aiTeam --> ai : развитие\nAI-сценариев
+clinical --> policy : запрос AI-анализа
+policy --> ai : разрешённый\nнабор medical data
+ai --> clinical : результат AI\nв клинический контур
+
+partner --> gateway : partner API
+gateway --> partnerDomain : стандартизованная\nинтеграция
+partnerDomain --> eventBus : partner events
+
+corporate --> eventBus : HR / inventory /\nfinance events
+
+eventBus --> contracts : проверка схемы
+contracts --> ingestion : approved data products
+legacyDwh --> legacyAdapter
+legacyAdapter --> ingestion : historical data
+
+ingestion --> lakehouse
+lakehouse --> marts
+marts --> semantic
+semantic --> portal
+semantic --> bi
+
+businessUser --> portal : собрать отчёт
+businessUser --> bi : смотреть KPI
+steward --> catalog : владельцы,\nкачество, lineage
+
+catalog ..> contracts
+catalog ..> ingestion
+catalog ..> lakehouse
+catalog ..> marts
+catalog ..> semantic
+
+policy ..> portal
+policy ..> bi
+policy ..> contracts
+
+note bottom of medicalRecords
+Медицинские карты, истории болезней
+и результаты исследований не входят
+в self-service витрину данных.
+
+AI получает только разрешённый
+набор данных через Policy Check.
+end note
+
+note bottom of contracts
+Data Contract фиксирует:
+
+- владельца
+- схему
+- SLA
+- разрешённые поля
+- правила доступа
+end note
+
+note bottom of semantic
+Semantic Layer обеспечивает
+единые KPI и снижает зависимость
+от SQL-логики в legacy DWH.
+end note
+
+legend bottom
+|= Сценарий |= Поток данных |
+| Быстрая отчётность | Domains -> Contracts -> Lakehouse -> Marts -> Semantic Layer -> Portal |
+| Новый финтех-сервис | Fintech Domain -> Events/Data Product -> Data Platform |
+| AI для медицины | Clinical -> Policy Check -> AI Domain -> Clinical |
+| Новый партнёр | Partner -> API Gateway -> Partner Domain -> Event Bus |
+| Миграция legacy DWH | SQL Server 2008 -> Legacy Adapter -> Lakehouse |
+endlegend
+
+@enduml
