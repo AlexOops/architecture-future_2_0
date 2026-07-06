@@ -43,10 +43,13 @@ Task1/
 ├── README.md
 ├── bottlenecks_analysis.md
 ├── priorities.md
+├── esb_decommission_strategy.md
 └── diagrams/
     ├── future_target_container_c4.puml
+    ├── esb_decommission_responsibilities.puml
     └── pictures/
-        └── future_target_container_c4.png
+        ├── future_target_container_c4.png
+        └── esb_decommission_responsibilities.png
 ```
 
 Ключевое решение:
@@ -111,15 +114,18 @@ Task2/
 ```text
 Task3/
 ├── README.md
-├── roadmap.md
 ├── tech_radar.md
+├── roadmap.md
 ├── transformation_rationale.md
+├── esb_migration_roadmap.md
 └── diagrams/
-    ├── roadmap.puml
     ├── tech_radar.puml
+    ├── roadmap.puml
+    ├── esb_migration_roadmap.puml
     └── pictures/
+        ├── tech_radar.png
         ├── roadmap.png
-        └── tech_radar.png
+        └── esb_migration_roadmap.png
 ```
 
 Ключевое решение:

@@ -1,0 +1,45 @@
+@startuml esb_decommission_responsibilities
+
+title Apache Camel ESB Decomposition
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+package "As-Is" {
+  [Apache Camel ESB] as camel
+}
+
+package "To-Be Target Architecture" {
+  [API Gateway] as api
+  [Event Bus] as eventbus
+  [Domain Validators] as validators
+  [Data Contracts] as contracts
+  [Anti-Corruption Layer] as acl
+  [Mapping Services] as mapping
+  [Data Platform Ingestion Pipelines] as pipelines
+  [Consumer Idempotency] as idempotency
+  [Domain Services] as domains
+  [Legacy Adapter / Strangler Layer] as legacy
+}
+
+camel --> api : sync transport
+camel --> eventbus : async transport
+camel --> validators : FLC
+camel --> contracts : schema and contract checks
+camel --> acl : legacy transformations
+camel --> mapping : message mappings
+camel --> pipelines : batch / stream transformations
+camel --> idempotency : deduplication rules
+camel --> domains : business logic
+camel --> legacy : temporary legacy routes
+
+note right of camel
+Apache Camel is not replaced only by
+API Gateway and Event Bus.
+
+Transport moves to API/Event Bus.
+FLC, transformations, reliability patterns
+and business logic move to dedicated layers.
+end note
+
+@enduml

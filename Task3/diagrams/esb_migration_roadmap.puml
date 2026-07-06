@@ -1,0 +1,27 @@
+@startgantt
+
+Project starts the 2026-01-01
+printscale monthly
+
+[Инвентаризация Camel routes] as [inventory] lasts 60 days
+[Классификация: transport/FLC/transformations/logic] as [classification] starts at [inventory]'s start and lasts 45 days
+[Backlog миграции ESB] as [backlog] starts at [classification]'s end and lasts 15 days
+
+[Подготовить API Gateway] as [api] starts at [inventory]'s end and lasts 45 days
+[Подготовить Event Bus] as [bus] starts at [inventory]'s end and lasts 45 days
+[Подготовить Data Contracts] as [contracts] starts at [inventory]'s end and lasts 45 days
+[Подготовить Domain Validators] as [validators] starts at [inventory]'s end and lasts 45 days
+[Подготовить Anti-Corruption Layer] as [acl] starts at [inventory]'s end and lasts 60 days
+
+[Перенести sync routes в API Gateway] as [sync_routes] starts at [api]'s end and lasts 60 days
+[Перенести async routes в Event Bus] as [async_routes] starts at [bus]'s end and lasts 60 days
+[Перенести ФЛК в validators/contracts] as [flc] starts at [validators]'s end and lasts 60 days
+
+[Перенести transformations в ACL/mapping] as [transformations] starts at [sync_routes]'s end and lasts 70 days
+[Перенести бизнес-логику в domain services] as [logic] starts at [sync_routes]'s end and lasts 80 days
+[Перенести batch transformations в data pipelines] as [pipelines] starts at [async_routes]'s end and lasts 70 days
+
+[Отключить перенесённые Camel routes] as [shutdown] starts at [logic]'s end and lasts 60 days
+[Оставить только временный legacy adapter] as [legacy] starts at [shutdown]'s end and lasts 30 days
+
+@endgantt
