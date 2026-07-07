@@ -49,3 +49,7 @@ airflow/*.pid
 
 # PlantUML temp
 *.puml.tmp
+
+# Terraform generated plans
+tfplan
+*.tfplan

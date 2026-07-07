@@ -1,0 +1,128 @@
+@startuml
+left to right direction
+
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam linetype polyline
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+skinparam nodesep 80
+skinparam ranksep 90
+skinparam ArrowColor #374151
+skinparam ArrowThickness 1
+
+skinparam rectangle {
+  BackgroundColor #DDF4FF
+  BorderColor #2B7BBB
+  FontColor #1F2937
+}
+
+skinparam database {
+  BackgroundColor #E8F7FF
+  BorderColor #2780E3
+  FontColor #1F2937
+}
+
+skinparam cloud {
+  BackgroundColor #F3F4F6
+  BorderColor #6B7280
+  FontColor #1F2937
+}
+
+skinparam note {
+  BackgroundColor #FFF8DC
+  BorderColor #C9A227
+}
+
+actor "DevOps / Architect" as devops
+
+frame "Git Repository" as repo {
+  rectangle "Task4 Terraform files\n\nmain.tf\nvariables.tf\noutputs.tf\nterraform.tfvars" as tfFiles
+}
+
+frame "Local / CI Runner" as runner {
+  rectangle "Terraform CLI\n\ninit -> plan -> apply" as terraform
+  rectangle "Yandex Cloud Provider" as provider
+}
+
+cloud "Yandex Cloud API" as cloudApi
+
+frame "Managed by Terraform" as managed {
+  rectangle "VPC Network" as vpc
+  rectangle "Public Subnet\n10.10.10.0/24" as publicSubnet
+  rectangle "Private Subnet\n10.10.20.0/24" as privateSubnet
+  rectangle "NAT Gateway\n+ Route Table" as nat
+  rectangle "Security Groups\n\nbastion, portal,\nprivate services" as sg
+
+  rectangle "Bastion VM\n2 vCPU / 2 GB\npublic IP" as bastion
+  rectangle "Portal VM\n2 vCPU / 4 GB\npublic IP" as portal
+  rectangle "Integration VM\n2 vCPU / 4 GB\nprivate" as integration
+  rectangle "Data Platform VM\n4 vCPU / 16 GB\nprivate" as dataPlatform
+  rectangle "Observability VM\n2 vCPU / 4 GB\nprivate" as observability
+  database "Data Disk\n200 GB SSD" as dataDisk
+}
+
+frame "Manual / Later automation" as manual {
+  rectangle "Cloud account\nи billing" as billing
+  rectangle "Folder permissions\nи credentials" as permissions
+  rectangle "DNS records" as dns
+  rectangle "Production TLS\ncertificates" as tls
+  rectangle "Application deploy\nи data pipelines" as appDeploy
+}
+
+devops --> tfFiles : commit / review
+tfFiles --> terraform
+terraform --> provider
+provider --> cloudApi
+
+cloudApi --> vpc
+vpc --> publicSubnet
+vpc --> privateSubnet
+privateSubnet --> nat
+vpc --> sg
+
+publicSubnet --> bastion
+publicSubnet --> portal
+privateSubnet --> integration
+privateSubnet --> dataPlatform
+privateSubnet --> observability
+dataPlatform --> dataDisk
+
+billing ..> cloudApi
+permissions ..> provider
+dns ..> portal
+tls ..> portal
+appDeploy ..> portal
+appDeploy ..> integration
+appDeploy ..> dataPlatform
+appDeploy ..> observability
+
+note bottom of managed
+Terraform управляет базовой IaaS-инфраструктурой:
+
+- network
+- subnets
+- NAT
+- security groups
+- VM
+- disks
+end note
+
+note bottom of manual
+Вручную остаются действия,
+которые зависят от организации,
+секретов и production-процессов.
+end note
+
+legend bottom
+|= Компонент |= Управление |
+| VPC / Subnets / NAT / Route Table | Terraform |
+| Security Groups | Terraform |
+| VM и Disk | Terraform |
+| Cloud account / Billing | Manual |
+| Credentials | Manual / env |
+| DNS / TLS | Manual на первом этапе |
+| Application deploy | Later CI/CD |
+endlegend
+
+@enduml

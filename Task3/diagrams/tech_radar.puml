@@ -1,0 +1,63 @@
+@startmindmap
+
+* Техрадар Будущее 2.0
+** Adopt
+*** Cloud Data Platform
+**** масштабирование отчётности
+*** Lakehouse
+**** raw / trusted / curated
+*** Data Products
+**** независимые домены
+*** Data Contracts
+**** новые бизнесы и партнёры
+*** Data Catalog & Lineage
+**** поиск данных и доверие
+*** Semantic Layer
+**** единые KPI
+*** API Gateway
+**** управляемые интеграции
+*** Event Bus
+**** доменные события
+*** Terraform
+**** воспроизводимая инфраструктура
+** Trial
+*** Data Mesh Operating Model
+**** федеративное владение данными
+*** Query Engine
+**** быстрые запросы
+*** Data Quality Framework
+**** контроль качества витрин
+*** Feature Store
+**** AI-сервисы
+*** Policy-as-Code
+**** безопасность и compliance
+*** Strangler Migration
+**** поэтапный уход от legacy
+*** CDC / Streaming Ingestion
+**** актуальная аналитика
+** Assess
+*** Data Virtualization
+**** переходный период
+*** Serverless Analytics
+**** пиковые отчёты
+*** MLOps Platform
+**** lifecycle AI-моделей
+*** Synthetic Data
+**** безопасная разработка
+*** Multi-cloud DR
+**** отказоустойчивость
+** Hold
+*** SQL Server 2008 как центр DWH
+**** узкое место
+*** Бизнес-логика в DWH
+**** блокирует домены
+*** PowerBuilder для новых процессов
+**** legacy UI
+*** Прямой BI-доступ к DWH
+**** тяжёлые запросы
+*** Точечные интеграции через ESB
+**** высокая связность
+*** Medical records в self-service аналитике
+**** запрещено бизнес-ограничением
+
+@endmindmap
